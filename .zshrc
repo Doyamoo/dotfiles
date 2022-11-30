@@ -58,6 +58,7 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=244"
 # コマンド補完
 zinit ice wait lucid
 zinit light zsh-users/zsh-completions
+autoload -Uz compinit && compinit
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # 小文字でも大文字にマッチさせる
 zstyle ':completion:*:default' menu select=1        # TAB・矢印で選択する
 
@@ -159,3 +160,6 @@ alias v='code'
 
 
 ######################################################
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /opt/homebrew/bin/terraform terraform

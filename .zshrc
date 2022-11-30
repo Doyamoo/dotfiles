@@ -29,68 +29,107 @@ zinit light-mode for \
 # homebrew
 # https://brew.sh/index_ja
 export PATH=/opt/homebrew/bin:$PATH
+export PATH="/opt/homebrew/sbin:$PATH"
 
 # node.js
 export PATH=$HOME/.nodebrew/current/bin:$PATH
+
+# GO
+export GOPATH=$HOME
+export PATH=$PATH:$GOPATH/bin
 
 
 
 ### Plugin ############################################
 
+# Pure プロンプト
+zinit ice compile'(pure|async).zsh' pick'async.zsh' src'pure.zsh'
+zinit light sindresorhus/pure
+
 # シンタックスハイライト
+zinit ice wait lucid
 zinit light zdharma/fast-syntax-highlighting
 
-## 履歴補完
+# 履歴補完
+zinit ice wait lucid
 zinit light zsh-users/zsh-autosuggestions
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=244"
 
-## コマンド補完
-zinit ice wait'0'; zinit light zsh-users/zsh-completions
-autoload -Uz compinit && compinit
-## 補完で小文字でも大文字にマッチさせる
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-## 補完候補を一覧表示したとき、Tabや矢印で選択できるようにする
-zstyle ':completion:*:default' menu select=1 
+# コマンド補完
+zinit ice wait lucid
+zinit light zsh-users/zsh-completions
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # 小文字でも大文字にマッチさせる
+zstyle ':completion:*:default' menu select=1        # TAB・矢印で選択する
 
-# コマンド履歴 ctrl+r
-zinit light zdharma/history-search-multi-word
+
+
+### Peco ############################################
+
+# ghqの補完
+function peco-src () {
+  local selected_dir=$(ghq list -p | peco --query "$LBUFFER")
+  if [ -n "$selected_dir" ]; then
+    BUFFER="code ${selected_dir}"
+    zle accept-line
+  fi
+  zle clear-screen
+}
+zle -N peco-src
+bindkey '^g^f' peco-src
+
+# historyの補完
+function peco-select-history() {
+  BUFFER=$(\history -n -r 1 | peco --query "$LBUFFER")
+  CURSOR=$#BUFFER
+  zle clear-screen
+}
+zle -N peco-select-history
+bindkey '^r' peco-select-history
+
+# cdの補完
+if [[ -n $(echo ${^fpath}/chpwd_recent_dirs(N)) && -n $(echo ${^fpath}/cdr(N)) ]]; then
+    autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+    add-zsh-hook chpwd chpwd_recent_dirs
+    zstyle ':completion:*' recent-dirs-insert both
+    zstyle ':chpwd:*' recent-dirs-default true
+    zstyle ':chpwd:*' recent-dirs-max 1000
+    zstyle ':chpwd:*' recent-dirs-file "$HOME/.cache/chpwd-recent-dirs"
+fi
+
+function peco-cdr () {
+    local selected_dir="$(cdr -l | sed 's/^[0-9]\+ \+//' | peco --prompt="cdr >" --query "$LBUFFER")"
+    if [ -n "$selected_dir" ]; then
+        BUFFER="cd ${selected_dir}"
+        zle accept-line
+    fi
+}
+zle -N peco-cdr
+bindkey '^g^d' peco-cdr
 
 
 
 ### History ############################################
 
-# history search
+export HISTFILE=${HOME}/.zsh_history
+export HISTSIZE=1000        # メモリに保存される履歴の件数
+export SAVEHIST=100000      # 履歴ファイルに保存される履歴の件数
+
+# 入力中の内容からhistoryを検索
 bindkey '^P' history-beginning-search-backward
 bindkey '^N' history-beginning-search-forward
 
-# ヒストリに追加されるコマンド行が古いものと同じなら古いものを削除
-setopt hist_ignore_all_dups
-
-# スペースで始まるコマンド行はヒストリリストから削除
-setopt hist_ignore_space
-
-# ヒストリを呼び出してから実行する間に一旦編集可能
-setopt hist_verify
-
-# 余分な空白は詰めて記録
-setopt hist_reduce_blanks 
-
-# historyコマンドは履歴に登録しない
-setopt hist_no_store
-
-# 補完時にヒストリを自動的に展開         
-setopt hist_expand
-
-# 履歴をインクリメンタルに追加
-setopt inc_append_history
-
-# 同時に起動しているzshの間でhistoryを共有する
-setopt share_history
+setopt hist_ignore_all_dups # ヒストリに追加されるコマンド行が古いものと同じなら古いものを削除
+setopt hist_ignore_space    # スペースで始まるコマンド行はヒストリリストから削除
+setopt hist_verify          # ヒストリを呼び出してから実行する間に一旦編集可能
+setopt hist_reduce_blanks   # 余分な空白は詰めて記録
+setopt hist_no_store        # historyコマンドは履歴に登録しない
+setopt hist_expand          # 補完時にヒストリを自動的に展開         
+setopt inc_append_history   # 履歴をインクリメンタルに追加
+setopt share_history        # 同時に起動しているzshの間でhistoryを共有する
 
 
 
-
-### alias ############################################
+### Alias ############################################
 
 alias ls='ls -G'
 alias ll='ls -alF'
@@ -119,13 +158,4 @@ alias v='code'
 
 
 
-
-### sharship #########################################
-
-# https://starship.rs/ja-JP/
-# https://starship.rs/ja-JP/presets/plain-text.html
-eval "$(starship init zsh)"
-
-autoload -U +X bashcompinit && bashcompinit
-# terraform
-complete -o nospace -C /opt/homebrew/bin/terraform terraform
+######################################################

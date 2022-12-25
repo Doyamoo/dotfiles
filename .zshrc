@@ -24,7 +24,7 @@ zinit light-mode for \
 
 
 
-### PATH ##############################################
+### PATH / ENV ##########################################
 
 # homebrew
 # https://brew.sh/index_ja
@@ -37,6 +37,14 @@ export PATH=$HOME/.nodebrew/current/bin:$PATH
 # GO
 export GOPATH=$HOME
 export PATH=$PATH:$GOPATH/bin
+
+# nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
+# pipenv
+export PIPENV_VENV_IN_PROJECT=1
 
 
 
@@ -133,7 +141,7 @@ setopt share_history        # 同時に起動しているzshの間でhistoryを�
 ### Alias ############################################
 
 alias ls='ls -G'
-alias ll='ls -alF'
+alias ll='ls -alFh'
 alias la='ls -A'
 
 alias ..='cd ..'
@@ -163,3 +171,4 @@ alias v='code'
 
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
+

@@ -46,6 +46,11 @@ export NVM_DIR="$HOME/.nvm"
 # pipenv
 export PIPENV_VENV_IN_PROJECT=1
 
+# poetry
+export PATH="$HOME/.local/bin:$PATH"
+fpath+=~/.zfunc
+
+
 
 
 ### Plugin ############################################
@@ -172,3 +177,4 @@ alias v='code'
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /opt/homebrew/bin/terraform terraform
 
+eval "$(pyenv init --path)"

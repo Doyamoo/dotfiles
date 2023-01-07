@@ -2,7 +2,7 @@
 #vhttps://zenn.dev/k4zu/articles/zsh-tutorial
 
 # 配置したい設定ファイル
-dotfiles=(.zshrc .tmux.conf)
+dotfiles=(.zshrc .zfunc)
 
 # .zshrc と .tmux.conf という設定ファイルのシンボリックリンクを
 # ホームディレクトリ直下に作成する
